@@ -33,12 +33,13 @@ class A9Gdriver
          * to be driven directly by the library. The Serial MUST had been
          * initialized externally at 115200 baud, prior to calling init()
          */
-        A9Gdriver(Stream& serial);
+        A9Gdriver(Uart& serial);
 
-        void init();
+        bool init();
 
         void ATmode(bool enabled);  // "+++" and "ATO"
 
+        bool isNetworkConnected();
         // Starting from here, the public functions are ordered by the category
         // given in the chinese AT Instruction Set and then the english version
 
@@ -76,6 +77,7 @@ class A9Gdriver
 
         //--------------------
         // 6. SMS INSTRUCTIONS
+        void sendSms(char* phone, char* text);
 
         //---------------------------
         // 7. PHONE BOOK INSTRUCTIONS
@@ -92,10 +94,9 @@ class A9Gdriver
         //----------------------------------
         // 9. GPS INSTRUCTIONS (a9g_gps.cpp)
 
-        bool GPS_setStatus(bool enable); // GPS
-
-        bool GPS_getStatus();   // GPS?
-
+        bool GPS_setEnabled(bool enable); // GPS
+        bool GPS_setReadInterval(uint32_t seconds);
+        bool GPS_getLocation(char *);
         //------------------------
         // 10. TCP/IP INSTRUCTIONS
 
@@ -124,7 +125,15 @@ class A9Gdriver
         void HTTP_sendPost(String url, String contentType, String bodyContent); // HTTPPOST
 
     protected:
-        Stream& _serial;
+        Uart& _serial;
+        enum State_t {
+            STATE_IDLE,
+            STATE_WAIT_RESPONSE,
+        };
+
+        uint32_t gpsQueryStartMs = 0;
+        State_t gpsQueryState = STATE_IDLE;
+        
         bool _echo;
         void _dropRx();
         void _flushTx();
@@ -133,6 +142,8 @@ class A9Gdriver
         void _sendLongString(const char * str);
         void _sendBuffer(const char * buffer, size_t size);
         bool _waitForRx(String needle, unsigned long timeout=1000);
+        bool _getGPSData(char* s);
+        bool _isGpsTimeout();
 };
 
 #endif // A9G_AT_COMMANDS_H !def

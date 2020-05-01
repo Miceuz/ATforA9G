@@ -5,6 +5,26 @@
 
 #include "a9gdriver.h"
 
+A9Gdriver::A9Gdriver(Uart& serial) : _serial(serial)
+{
+}
+
+bool A9Gdriver::init()
+{
+  //A9G restart is assumed before init
+  //A9G takes some time to startup. Bang Set echo off command at it until it responds.
+  uint32_t retries = 0;
+  _serial.begin(115200);
+  _serial.setTimeout(100);
+
+  A_setEchoMode(false);
+  while(!_waitForRx("OK") && retries++ < 20){
+    A_setEchoMode(false);
+    delay(500);
+  }
+  return retries < 20;
+}
+
 void A9Gdriver::A_attention()
 {
   _sendCommEnd(F("AT"));
