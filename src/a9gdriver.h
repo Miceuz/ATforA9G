@@ -77,7 +77,7 @@ class A9Gdriver
 
         //--------------------
         // 6. SMS INSTRUCTIONS
-        void sendSms(char* phone, char* text);
+        void sendSms(const char* phone, const char* text);
 
         //---------------------------
         // 7. PHONE BOOK INSTRUCTIONS

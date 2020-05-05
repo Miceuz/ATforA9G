@@ -56,12 +56,12 @@ bool A9Gdriver::_waitForRx(String needle,unsigned long timeout)
     response = _serial.readStringUntil('\n');
     response.trim();
   }
-  Serial.print("[response length:");
-  Serial.print(response.length());
-  Serial.print("]:");
-  Serial.print(response);
-  Serial.print(" result:");
-  Serial.println(response.indexOf(needle) >=0);
+  // Serial.print("[response length:");
+  // Serial.print(response.length());
+  // Serial.print("]:");
+  // Serial.print(response);
+  // Serial.print(" result:");
+  // Serial.println(response.indexOf(needle) >=0);
   return response.indexOf(needle) >= 0;
 }
 
