@@ -9,5 +9,4 @@ void A9Gdriver::sendSms(const char* phone, const char* text) {
 	_waitForRx(F(">"));
 	_sendComm(text);
 	_serial.print('\x1A');//end message with Ctrl+Z
-	// _sendComm('\x1A');
 }
