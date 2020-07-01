@@ -17,133 +17,167 @@
 #ifndef A9G_AT_COMMANDS_H
 #define A9G_AT_COMMANDS_H
 
+#include "ArduinoJson.h"
+#include "a9g-codes.h" // Check this header for error/status codes
 #include <Arduino.h>
 #include <stdbool.h>
-#include "a9g-codes.h" // Check this header for error/status codes
 
-class A9Gdriver
-{
-    public:
+constexpr const char *const GPSRD = "+GPSRD:";
+constexpr const char *const MQTTPUBLISH = "+MQTTPUBLISH:";
+constexpr const char *const CME_ERROR = "+CME ERROR:";
 
-        //--------------------------
-        // GENERAL LIBRARY FUNCTIONS
+class A9Gdriver {
+public:
+  //--------------------------
+  // GENERAL LIBRARY FUNCTIONS
 
-        /**
-         * Register the software/hardware Serial connected to the A9(G),
-         * to be driven directly by the library. The Serial MUST had been
-         * initialized externally at 115200 baud, prior to calling init()
-         */
-        A9Gdriver(Uart& serial);
+  /**
+   * Register the software/hardware Serial connected to the A9(G),
+   * to be driven directly by the library. The Serial MUST had been
+   * initialized externally at 115200 baud, prior to calling init()
+   */
+  A9Gdriver(Uart &serial);
 
-        bool init();
+  bool init();
 
-        void ATmode(bool enabled);  // "+++" and "ATO"
+  void processResponse();
 
-        bool isNetworkConnected();
-        // Starting from here, the public functions are ordered by the category
-        // given in the chinese AT Instruction Set and then the english version
+  void ATmode(bool enabled); // "+++" and "ATO"
 
-        //--------------------------------------------------
-        // 2. GENERAL PURPOSE INSTRUCTIONS (a9g_general.cpp)
+  bool isNetworkConnected();
+  // Starting from here, the public functions are ordered by the category
+  // given in the chinese AT Instruction Set and then the english version
 
-        void A_attention();    // AT
+  //--------------------------------------------------
+  // 2. GENERAL PURPOSE INSTRUCTIONS (a9g_general.cpp)
 
-        // void A_write(); // AT&W
+  void A_attention(); // AT
 
-        // void A_factoryReset();  // AT&F
+  // void A_write(); // AT&W
 
-        // void A_defaults();  //ATZ
+  // void A_factoryReset();  // AT&F
 
-        // void A_getManufacturerInfo();   // AT+CGMI
+  // void A_defaults();  //ATZ
 
-        // void A_getProductModel();   // AT+CGMM
+  // void A_getManufacturerInfo();   // AT+CGMI
 
-        // void A_getSoftwareVersionInfo();    // AT+CGMR
+  // void A_getProductModel();   // AT+CGMM
 
-        // void A_getIMEI();   // AT+CGSN. AT+EGMR Will NOT be implemented
+  // void A_getSoftwareVersionInfo();    // AT+CGMR
 
-        void A_setEchoMode(bool enabled);  // ATE
+  // void A_getIMEI();   // AT+CGSN. AT+EGMR Will NOT be implemented
 
-        //------------------------------------------------
-        // 3. STATE CONTROL INSTRUCTIONS (a9g_general.cpp)
+  void A_setEchoMode(bool enabled); // ATE
 
-        void sendRst(A9G_shdn_level_t type);    // AT+RST
+  //------------------------------------------------
+  // 3. STATE CONTROL INSTRUCTIONS (a9g_general.cpp)
 
-        //------------------------------------------------------------
-        // 4. SIM-CARD INSTRUCTIONS and (en. spec) 3. SIM/PBK Commands
+  void sendRst(A9G_shdn_level_t type); // AT+RST
 
-        //---------------------------------------------------------------
-        // 5. CALL CONTROL INSTRUCTIONS and (en. spec) 6. STK/SS Commands
+  //------------------------------------------------------------
+  // 4. SIM-CARD INSTRUCTIONS and (en. spec) 3. SIM/PBK Commands
 
-        //--------------------
-        // 6. SMS INSTRUCTIONS
-        void sendSms(const char* phone, const char* text);
+  //---------------------------------------------------------------
+  // 5. CALL CONTROL INSTRUCTIONS and (en. spec) 6. STK/SS Commands
 
-        //---------------------------
-        // 7. PHONE BOOK INSTRUCTIONS
+  //--------------------
+  // 6. SMS INSTRUCTIONS
+  void sendSms(const char *phone, const char *text);
 
-        //-------------------------------------------------------------------------------
-        // 8. GPRS INSTRUCTIONS and (en. spec) 5. Network Service Commands (a9g_gprs.cpp)
+  //---------------------------
+  // 7. PHONE BOOK INSTRUCTIONS
 
-        void NET_attach(bool enable); // CGATT
+  //-------------------------------------------------------------------------------
+  // 8. GPRS INSTRUCTIONS and (en. spec) 5. Network Service Commands
+  // (a9g_gprs.cpp)
 
-        void NET_setPDP(int profile, const char * APN);  // CGDCONT
+  void NET_attach(bool enable); // CGATT
 
-        void NET_activatePDP(int profile, bool activate); // CGACT
+  void NET_setPDP(int profile, const char *APN); // CGDCONT
 
-        //----------------------------------
-        // 9. GPS INSTRUCTIONS (a9g_gps.cpp)
+  void NET_activatePDP(int profile, bool activate); // CGACT
 
-        bool GPS_setEnabled(bool enable); // GPS
-        bool GPS_setReadInterval(uint32_t seconds);
-        bool GPS_getLocation(char *);
-        //------------------------
-        // 10. TCP/IP INSTRUCTIONS
+  //----------------------------------
+  // 9. GPS INSTRUCTIONS (a9g_gps.cpp)
 
-        //----------------------------------------------------
-        // FTP INSTRUCTIONS (from en. spec) 9. TCP/IP Commands
+  bool GPS_setEnabled(bool enable); // GPS
+  bool GPS_setReadInterval(uint32_t seconds);
+  bool GPS_getLocation(char *);
+  //------------------------
+  // 10. TCP/IP INSTRUCTIONS
 
-        //-----------------------------------------------------
-        // 11. (wit cloud?) INSTRUCTIONS (not available for A6)
+  //----------------------------------------------------
+  // FTP INSTRUCTIONS (from en. spec) 9. TCP/IP Commands
 
-        //----------------------
-        // 12. MQTT INSTRUCTIONS
+  //-----------------------------------------------------
+  // 11. (wit cloud?) INSTRUCTIONS (not available for A6)
 
-        void MQTT_connect(const char * server, uint16_t port, String clientID, uint16_t aliveSeconds, bool cleanSession, const char * username, const char * password);    // MQTTCONN
+  //----------------------
+  // 12. MQTT INSTRUCTIONS
 
-        void MQTT_pub(const char * topic, String payload, uint8_t qos, bool dup, bool remain);    // MQTTPUB
+  void MQTT_connect(const char *server, uint16_t port, String clientID,
+                    uint16_t aliveSeconds, bool cleanSession,
+                    const char *username, const char *password); // MQTTCONN
+  void MQTT_connect(const char *server, uint16_t port, String clientID,
+                    uint16_t aliveSeconds, bool cleanSession); // MQTTCONN
 
-        void MQTT_sub(String topic, bool sub, uint8_t qos);    // MQTTSUB
+  void MQTT_pub(const char *topic, String payload, uint8_t qos, bool dup,
+                bool remain); // MQTTPUB
+  void MQTT_pub(const char *topic, StaticJsonDocument<512> &payload,
+                uint8_t qos, bool dup, bool remain);
 
-        void MQTT_disconnect(); // MQTTDISCONN
+  void MQTT_sub(String topic, bool sub, uint8_t qos); // MQTTSUB
 
-        //------------------
-        // HTTP INSTRUCTIONS
+  void MQTT_disconnect(); // MQTTDISCONN
 
-        void HTTP_sendGet(String url); // HTTPGET
+  //------------------
+  // HTTP INSTRUCTIONS
 
-        void HTTP_sendPost(String url, String contentType, String bodyContent); // HTTPPOST
+  void HTTP_sendGet(String url); // HTTPGET
 
-    protected:
-        Uart& _serial;
-        enum State_t {
-            STATE_IDLE,
-            STATE_WAIT_RESPONSE,
-        };
+  void HTTP_sendPost(String url, String contentType,
+                     String bodyContent); // HTTPPOST
 
-        uint32_t gpsQueryStartMs = 0;
-        State_t gpsQueryState = STATE_IDLE;
-        
-        bool _echo;
-        void _dropRx();
-        void _flushTx();
-        void _sendComm(String command);
-        void _sendCommEnd(String command);
-        void _sendLongString(const char * str);
-        void _sendBuffer(const char * buffer, size_t size);
-        bool _waitForRx(String needle, unsigned long timeout=1000);
-        bool _getGPSData(char* s);
-        bool _isGpsTimeout();
+  void clearMqttMessage() { mqtt_message_available = false; };
+  void clearCmeError() { cme_error = false; };
+  void clearGps() { gps_available = false; };
+
+  bool isMqttMessage() { return mqtt_message_available; };
+  bool isCmeError() { return cme_error; };
+  bool isGps() { return gps_available; };
+
+  uint8_t *getMqttMessage() { return mqtt_message; };
+
+protected:
+  Uart &_serial;
+  enum State_t {
+    STATE_IDLE,
+    STATE_WAIT_RESPONSE,
+  };
+
+  uint32_t gpsQueryStartMs = 0;
+  State_t gpsQueryState = STATE_IDLE;
+
+  bool mqtt_message_available = false;
+  bool cme_error = false;
+  bool gps_available = false;
+
+  uint8_t mqtt_message[512];
+
+  bool _echo;
+  void _processCmeError(String line);
+  void _processMqttMessage(String line);
+  void _processGps(String line);
+  void _processRxLine(String line);
+  void _dropRx();
+  void _flushTx();
+  void _sendComm(String command);
+  void _sendCommEnd(String command);
+  void _sendLongString(const char *str);
+  void _sendBuffer(const char *buffer, size_t size);
+  bool _waitForRx(String needle, unsigned long timeout = 1000);
+  bool _getGPSData(char *s);
+  bool _isGpsTimeout();
 };
 
 #endif // A9G_AT_COMMANDS_H !def

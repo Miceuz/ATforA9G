@@ -1,5 +1,5 @@
 {
-    "name": "A9G AT Library",
+    "name": "A9G_AT_Library",
     "description": "Library to drive an Ai-Thinker A9G using AT Commands",
     "keywords": "GPRS,GSM,A9G",
     "repository": {
