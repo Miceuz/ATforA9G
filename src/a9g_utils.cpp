@@ -42,6 +42,9 @@ void A9Gdriver::_processCmeError(String line) {
   // todo
 }
 
+//+CTZV:20/07/06,11:31:15,+03
+
+//+MQTTDISCONNECTED: 256
 //+MQTTPUBLISH:2,device/req/7,509,labaslabas
 void A9Gdriver::_processMqttMessage(String line) {
   String mqtt_idx = line.substring(strlen(MQTTPUBLISH), line.indexOf(","));
@@ -54,14 +57,18 @@ void A9Gdriver::_processMqttMessage(String line) {
 
   String body = line.substring(length_end + 1);
   body.getBytes(mqtt_message, body.length() + 1);
+  mqtt_message[body.length() + 1] = 0;
   // Serial.println(String("mqtt idx:") + mqtt_idx);
   // Serial.println(String("mqtt topic:") + topic);
   // Serial.println(String("mqtt body len:") + length);
-  Serial.println(String("mqtt body:" + body));
+  // Serial.println(String("mqtt body:" + body));
 }
 
+// +GPSRD:$GNGGA,143628.000,5441.6781,N,02526.4747,E,1,5,7.26,164.4,M,27.4,M,,*47
 void A9Gdriver::_processGps(String line) {
-  // todo
+  String gngga = line.substring(line.indexOf("$GNGGA"));
+  gngga.getBytes(gngga_message, gngga.length() + 1);
+  gngga_message[gngga.length() + 1] = 0;
 }
 
 void A9Gdriver::_processRxLine(String line) {

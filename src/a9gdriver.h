@@ -40,8 +40,6 @@ public:
 
   bool init();
 
-  void processResponse();
-
   void ATmode(bool enabled); // "+++" and "ATO"
 
   bool isNetworkConnected();
@@ -102,7 +100,6 @@ public:
 
   bool GPS_setEnabled(bool enable); // GPS
   bool GPS_setReadInterval(uint32_t seconds);
-  bool GPS_getLocation(char *);
   //------------------------
   // 10. TCP/IP INSTRUCTIONS
 
@@ -147,6 +144,7 @@ public:
   bool isGps() { return gps_available; };
 
   uint8_t *getMqttMessage() { return mqtt_message; };
+  uint8_t *getGngga() { return gngga_message; };
 
 protected:
   Uart &_serial;
@@ -155,14 +153,12 @@ protected:
     STATE_WAIT_RESPONSE,
   };
 
-  uint32_t gpsQueryStartMs = 0;
-  State_t gpsQueryState = STATE_IDLE;
-
   bool mqtt_message_available = false;
   bool cme_error = false;
   bool gps_available = false;
 
   uint8_t mqtt_message[512];
+  uint8_t gngga_message[512];
 
   bool _echo;
   void _processCmeError(String line);
