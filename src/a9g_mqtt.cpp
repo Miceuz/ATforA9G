@@ -4,7 +4,7 @@
 
 #include "a9gdriver.h"
 
-void A9Gdriver::MQTT_connect(const char *server, uint16_t port, String clientID,
+bool A9Gdriver::MQTT_connect(const char *server, uint16_t port, String clientID,
                              uint16_t aliveSeconds, bool cleanSession,
                              const char *username, const char *password) {
   _sendComm(F("AT+MQTTCONN=\""));
@@ -22,11 +22,10 @@ void A9Gdriver::MQTT_connect(const char *server, uint16_t port, String clientID,
   _sendComm(F("\",\""));
   _sendComm(String(password));
   _sendCommEnd(F("\""));
-  while (!_waitForRx("OK"))
-    ;
+  return _waitForOk();
 }
 
-void A9Gdriver::MQTT_connect(const char *server, uint16_t port, String clientID,
+bool A9Gdriver::MQTT_connect(const char *server, uint16_t port, String clientID,
                              uint16_t aliveSeconds, bool cleanSession) {
   _sendComm(F("AT+MQTTCONN=\""));
   _sendComm(String(server));
@@ -38,11 +37,10 @@ void A9Gdriver::MQTT_connect(const char *server, uint16_t port, String clientID,
   _sendComm(String(aliveSeconds));
   _sendComm(F(","));
   _sendCommEnd(String((uint8_t)cleanSession));
-  while (!_waitForRx("OK"))
-    ;
+  return _waitForOk();
 }
 
-void A9Gdriver::MQTT_pub(const char *topic, String payload, uint8_t qos,
+bool A9Gdriver::MQTT_pub(const char *topic, String payload, uint8_t qos,
                          bool dup, bool remain) {
   _sendComm(F("AT+MQTTPUB=\""));
   _sendComm(String(topic));
@@ -54,8 +52,7 @@ void A9Gdriver::MQTT_pub(const char *topic, String payload, uint8_t qos,
   _sendComm(String((uint8_t)dup));
   _sendComm(F(","));
   _sendCommEnd(String((uint8_t)remain));
-  while (!_waitForRx("OK"))
-    ;
+  return _waitForOk();
 }
 
 class SingleQuoteWriter {
@@ -79,7 +76,7 @@ private:
   Uart &_serial;
 };
 
-void A9Gdriver::MQTT_pub(const char *topic, StaticJsonDocument<512> &payload,
+bool A9Gdriver::MQTT_pub(const char *topic, StaticJsonDocument<512> &payload,
                          uint8_t qos, bool dup, bool remain) {
   _sendComm(F("AT+MQTTPUB=\""));
   _sendComm(String(topic));
@@ -94,19 +91,17 @@ void A9Gdriver::MQTT_pub(const char *topic, StaticJsonDocument<512> &payload,
   _sendComm(String((uint8_t)dup));
   _sendComm(F(","));
   _sendCommEnd(String((uint8_t)remain));
-  while (!_waitForRx("OK"))
-    ;
+  return _waitForOk();
 }
 
-void A9Gdriver::MQTT_sub(String topic, bool sub, uint8_t qos) {
+bool A9Gdriver::MQTT_sub(String topic, bool sub, uint8_t qos) {
   _sendComm(F("AT+MQTTSUB=\""));
   _sendComm(topic);
   _sendComm(F("\","));
   _sendComm(String((uint8_t)sub));
   _sendComm(F(","));
   _sendCommEnd(String(qos));
-  while (!_waitForRx("OK"))
-    ;
+  return _waitForOk();
 }
 
 void A9Gdriver::MQTT_disconnect() { _sendCommEnd(F("AT+MQTTDISCONN")); }

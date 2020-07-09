@@ -29,10 +29,9 @@ bool A9Gdriver::init() {
   return retries < 20;
 }
 
-void A9Gdriver::A_attention() {
+bool A9Gdriver::A_attention() {
   _sendCommEnd(F("AT"));
-  while (!_waitForRx("OK"))
-    ;
+  return _waitForOk();
 }
 
 void A9Gdriver::A_setEchoMode(bool enabled) {

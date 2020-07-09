@@ -81,6 +81,8 @@ void A9Gdriver::_processRxLine(String line) {
   } else if (line.indexOf(GPSRD) >= 0) {
     gps_available = true;
     _processGps(line);
+  } else if (line.indexOf(MQTT_DISCONNECTED) >= 0) {
+    mqtt_disconnected = true;
   }
 }
 
@@ -110,6 +112,13 @@ bool A9Gdriver::_waitForRx(String needle, unsigned long timeout) {
   // Serial.print(" result:");
   // Serial.println(response.indexOf(needle) >=0);
   return false;
+}
+
+bool A9Gdriver::_waitForOk() {
+  uint32_t retries = 0;
+  while (!_waitForRx("OK") && retries++ < max_retries)
+    ;
+  return retries < max_retries;
 }
 
 void A9Gdriver::_sendLongString(const char *str) {

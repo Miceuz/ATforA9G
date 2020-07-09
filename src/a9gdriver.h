@@ -25,6 +25,7 @@
 constexpr const char *const GPSRD = "+GPSRD:";
 constexpr const char *const MQTTPUBLISH = "+MQTTPUBLISH:";
 constexpr const char *const CME_ERROR = "+CME ERROR:";
+constexpr const char *const MQTT_DISCONNECTED = "+MQTTDISCONNECTED:";
 
 class A9Gdriver {
 public:
@@ -49,7 +50,7 @@ public:
   //--------------------------------------------------
   // 2. GENERAL PURPOSE INSTRUCTIONS (a9g_general.cpp)
 
-  void A_attention(); // AT
+  bool A_attention(); // AT
 
   // void A_write(); // AT&W
 
@@ -112,18 +113,18 @@ public:
   //----------------------
   // 12. MQTT INSTRUCTIONS
 
-  void MQTT_connect(const char *server, uint16_t port, String clientID,
+  bool MQTT_connect(const char *server, uint16_t port, String clientID,
                     uint16_t aliveSeconds, bool cleanSession,
                     const char *username, const char *password); // MQTTCONN
-  void MQTT_connect(const char *server, uint16_t port, String clientID,
+  bool MQTT_connect(const char *server, uint16_t port, String clientID,
                     uint16_t aliveSeconds, bool cleanSession); // MQTTCONN
 
-  void MQTT_pub(const char *topic, String payload, uint8_t qos, bool dup,
+  bool MQTT_pub(const char *topic, String payload, uint8_t qos, bool dup,
                 bool remain); // MQTTPUB
-  void MQTT_pub(const char *topic, StaticJsonDocument<512> &payload,
+  bool MQTT_pub(const char *topic, StaticJsonDocument<512> &payload,
                 uint8_t qos, bool dup, bool remain);
 
-  void MQTT_sub(String topic, bool sub, uint8_t qos); // MQTTSUB
+  bool MQTT_sub(String topic, bool sub, uint8_t qos); // MQTTSUB
 
   void MQTT_disconnect(); // MQTTDISCONN
 
@@ -138,10 +139,12 @@ public:
   void clearMqttMessage() { mqtt_message_available = false; };
   void clearCmeError() { cme_error = false; };
   void clearGps() { gps_available = false; };
+  void clearMqttDsiconnected() { mqtt_disconnected = false; };
 
   bool isMqttMessage() { return mqtt_message_available; };
   bool isCmeError() { return cme_error; };
   bool isGps() { return gps_available; };
+  bool isMqttDisconnected() { return mqtt_disconnected; };
 
   uint8_t *getMqttMessage() { return mqtt_message; };
   uint8_t *getGngga() { return gngga_message; };
@@ -156,9 +159,12 @@ protected:
   bool mqtt_message_available = false;
   bool cme_error = false;
   bool gps_available = false;
+  bool mqtt_disconnected = false;
 
   uint8_t mqtt_message[512];
   uint8_t gngga_message[512];
+
+  uint32_t max_retries = 20;
 
   bool _echo;
   void _processCmeError(String line);
@@ -172,6 +178,7 @@ protected:
   void _sendLongString(const char *str);
   void _sendBuffer(const char *buffer, size_t size);
   bool _waitForRx(String needle, unsigned long timeout = 1000);
+  bool _waitForOk();
   bool _getGPSData(char *s);
   bool _isGpsTimeout();
 };
