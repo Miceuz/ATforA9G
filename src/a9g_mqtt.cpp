@@ -76,7 +76,7 @@ private:
   Uart &_serial;
 };
 
-bool A9Gdriver::MQTT_pub(const char *topic, StaticJsonDocument<512> &payload,
+bool A9Gdriver::MQTT_pub(const char *topic, StaticJsonDocument<1024> &payload,
                          uint8_t qos, bool dup, bool remain) {
   _sendComm(F("AT+MQTTPUB=\""));
   _sendComm(String(topic));

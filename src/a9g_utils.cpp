@@ -58,10 +58,6 @@ void A9Gdriver::_processMqttMessage(String line) {
   String body = line.substring(length_end + 1);
   body.getBytes(mqtt_message, body.length() + 1);
   mqtt_message[body.length() + 1] = 0;
-  // Serial.println(String("mqtt idx:") + mqtt_idx);
-  // Serial.println(String("mqtt topic:") + topic);
-  // Serial.println(String("mqtt body len:") + length);
-  // Serial.println(String("mqtt body:" + body));
 }
 
 // +GPSRD:$GNGGA,143628.000,5441.6781,N,02526.4747,E,1,5,7.26,164.4,M,27.4,M,,*47

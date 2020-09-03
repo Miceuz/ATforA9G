@@ -121,7 +121,7 @@ public:
 
   bool MQTT_pub(const char *topic, String payload, uint8_t qos, bool dup,
                 bool remain); // MQTTPUB
-  bool MQTT_pub(const char *topic, StaticJsonDocument<512> &payload,
+  bool MQTT_pub(const char *topic, StaticJsonDocument<1024> &payload,
                 uint8_t qos, bool dup, bool remain);
 
   bool MQTT_sub(String topic, bool sub, uint8_t qos); // MQTTSUB
