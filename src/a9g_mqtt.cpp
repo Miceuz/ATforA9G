@@ -78,6 +78,8 @@ private:
 
 bool A9Gdriver::MQTT_pub(const char *topic, StaticJsonDocument<1024> &payload,
                          uint8_t qos, bool dup, bool remain) {
+  serializeJson(payload, Serial);
+
   _sendComm(F("AT+MQTTPUB=\""));
   _sendComm(String(topic));
   _sendComm(F("\",\""));

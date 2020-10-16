@@ -44,6 +44,7 @@ public:
   void ATmode(bool enabled); // "+++" and "ATO"
 
   bool isNetworkConnected();
+  bool queryRSSI();
   // Starting from here, the public functions are ordered by the category
   // given in the chinese AT Instruction Set and then the english version
 
@@ -146,7 +147,16 @@ public:
   bool isGps() { return gps_available; };
   bool isMqttDisconnected() { return mqtt_disconnected; };
 
-  uint8_t *getMqttMessage() { return mqtt_message; };
+  uint8_t *getMqttMessage() {
+    // uint8_t *c =
+    //     (uint8_t
+    //          *)"{\"device_id\": 7, \"request_id\": 10, \"current_command\": "
+    //            "{\"request\": \"multiple_pids\", \"payload\": [\"ATSH "
+    //            "7b0\", \"STP "
+    //            "33\", \"21 03\"]}, \"time_issued\": 741246660}";
+    // memcpy(mqtt_message, c, strlen((char *)c));
+    return mqtt_message;
+  };
   uint8_t *getGngga() { return gngga_message; };
 
 protected:
